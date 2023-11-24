@@ -1,0 +1,61 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { AlbumService } from './album.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AlbumEntity } from './album.entity';
+
+describe('AlbumService', () => {
+  let service: AlbumService;
+  let albumRepository: Repository<AlbumEntity>;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AlbumService,
+        {
+          provide: getRepositoryToken(AlbumEntity),
+          useClass: Repository,
+        },
+      ],
+    }).compile();
+
+    service = module.get<AlbumService>(AlbumService);
+    albumRepository = module.get<Repository<AlbumEntity>>(getRepositoryToken(AlbumEntity));
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('create', () => {
+    it('should create an album successfully', async () => {
+      const albumData = {
+        name: 'Album Name',
+        cover: 'album-cover.jpg',
+        releaseDate: new Date(),
+        description: 'Album description',
+      };
+
+      const createdAlbum = new AlbumEntity();
+      jest.spyOn(albumRepository, 'create').mockReturnValue(createdAlbum);
+      jest.spyOn(albumRepository, 'save').mockResolvedValue(createdAlbum);
+
+      const result = await service.create(albumData);
+
+      expect(result).toEqual(createdAlbum);
+      expect(albumRepository.create).toHaveBeenCalledWith(albumData);
+      expect(albumRepository.save).toHaveBeenCalledWith(createdAlbum);
+    });
+
+    it('should throw a business exception for an empty description', async () => {
+      const albumData = {
+        name: 'Album Name',
+        cover: 'album-cover.jpg',
+        releaseDate: new Date(),
+        description: '',
+      };
+
+      await expect(service.create(albumData)).rejects.toThrowError('El nombre y la descripción del álbum son obligatorios.');
+    });
+  });
+});
