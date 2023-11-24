@@ -1,3 +1,3 @@
-### parcial2_ISIS3710
+### parcial2
 
 Nicole Murillo Fonseca 202025521
