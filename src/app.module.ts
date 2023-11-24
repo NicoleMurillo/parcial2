@@ -27,3 +27,5 @@ import { PerformerAlbumService } from './albums/performer-album.service';
   providers: [AppService, AlbumService, TrackService, PerformerService, PerformerAlbumService],
 })
 export class AppModule {}
+
+
