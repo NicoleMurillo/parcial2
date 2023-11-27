@@ -9,6 +9,9 @@ import { AlbumService } from './albums/album.service';
 import { TrackService } from './albums/track.service';
 import { PerformerService } from './albums/performer.service';
 import { PerformerAlbumService } from './albums/performer-album.service';
+import { AlbumController } from './albums/album.controller';
+import { TrackController } from './albums/track.controller';
+import { PerformerController } from './albums/performer.controller';
 
 @Module({
   imports: [
@@ -23,7 +26,7 @@ import { PerformerAlbumService } from './albums/performer-album.service';
       synchronize: true, 
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, AlbumController, TrackController, PerformerController],
   providers: [AppService, AlbumService, TrackService, PerformerService, PerformerAlbumService],
 })
 export class AppModule {}

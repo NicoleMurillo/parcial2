@@ -3,6 +3,7 @@ import { AlbumService } from './album.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AlbumEntity } from './album.entity';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('AlbumService', () => {
   let service: AlbumService;
@@ -56,6 +57,50 @@ describe('AlbumService', () => {
       };
 
       await expect(service.create(albumData)).rejects.toThrowError('El nombre y la descripción del álbum son obligatorios.');
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return an album by ID', async () => {
+      const albumId = 'validAlbumId';
+      const albumEntity = new AlbumEntity();
+
+      jest.spyOn(albumRepository, 'findOne').mockResolvedValueOnce(albumEntity);
+
+      const result = await service.findOne(albumId);
+
+      expect(albumRepository.findOne).toHaveBeenCalledWith({ where: { id: albumId } });
+      expect(result).toBeInstanceOf(AlbumEntity);
+    });
+
+    it('should throw NotFoundException for non-existing album', async () => {
+      const albumId = 'nonExistingAlbumId';
+
+      jest.spyOn(albumRepository, 'findOne').mockResolvedValueOnce(undefined);
+
+      await expect(service.findOne(albumId)).rejects.toThrowError(NotFoundException);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return an array of albums', async () => {
+      const albumEntities = [new AlbumEntity(), new AlbumEntity()];
+
+      jest.spyOn(albumRepository, 'find').mockResolvedValueOnce(albumEntities);
+
+      const result = await service.findAll();
+
+      expect(albumRepository.find).toHaveBeenCalled();
+      expect(result).toEqual(expect.arrayContaining(albumEntities));
+    });
+
+    it('should return an empty array if no albums are found', async () => {
+      jest.spyOn(albumRepository, 'find').mockResolvedValueOnce([]);
+
+      const result = await service.findAll();
+
+      expect(albumRepository.find).toHaveBeenCalled();
+      expect(result).toEqual([]);
     });
   });
 });
